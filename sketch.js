@@ -1,15 +1,19 @@
 var grid=[]
 var bgrid=[];
 var c=0;
-var chance='O',play=false;
+var chance,play=false;
 var w,h;
 var database ,ref;
+var gamecode
 function setup() {
+    params = getURLParams();
+    gamecode=params.gamecode;
+    chance=params.chance;
+    if(chance=='X')
+      play=true;
     canvas=createCanvas(windowWidth,windowHeight)
     w=windowWidth/100;
     h=windowHeight/100;
-    print(chance);
-
   var config = {
     apiKey: "AIzaSyBEoVHkUHSHyav2QPCbnkbM5zYjl2PDW5w",
     authDomain: "cbkm-63bc3.firebaseapp.com",
@@ -20,9 +24,9 @@ function setup() {
     
   };
   firebase.initializeApp(config);
-  console.log(firebase);
+  //console.log(firebase);
  database=firebase.database();
-  ref = database.ref('Game/gameCode');
+  ref = database.ref('Game/'+gamecode);
     ref.on('value',gotData,errData);
 }
 function gotData(data){
@@ -37,6 +41,7 @@ function gotData(data){
    	  	play=false
       grid=ngrid;
       bgrid=grid;
+      checkWin(bgrid,chance)
 
 }
  function errData(err){
@@ -72,7 +77,7 @@ if(bgrid[i]==null){
   grid: bgrid,
   chance:chance
 };
-console.log(data);
+//console.log(data);
 ref.push(data);
 }
 
@@ -104,6 +109,22 @@ function mousePressed(){
 					setPoint(3);
 			else
 				setPoint(0);
-			
-
+}
+function checkWin(xgrid,p){
+  if(xgrid[0]==p&&xgrid[1]==p&&xgrid[2]==p)
+    print(p+" wins");
+  else if(xgrid[3]==p&&xgrid[4]==p&&xgrid[5]==p)
+    print(p+" wins");
+  else if(xgrid[6]==p&&xgrid[7]==p&&xgrid[8]==p)
+    print(p+" wins");
+  else if(xgrid[0]==p&&xgrid[3]==p&&xgrid[6]==p)
+    print(p+" wins");
+  else if(xgrid[1]==p&&xgrid[4]==p&&xgrid[7]==p)
+    print(p+" wins");
+  else if(xgrid[2]==p&&xgrid[5]==p&&xgrid[8]==p)
+    print(p+" wins");
+  else if(xgrid[0]==p&&xgrid[4]==p&&xgrid[8]==p)
+    print(p+" wins");
+  else if(xgrid[6]==p&&xgrid[4]==p&&xgrid[2]==p)
+    print(p+" wins");
 }

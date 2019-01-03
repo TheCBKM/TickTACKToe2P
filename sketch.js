@@ -1,19 +1,28 @@
 var grid=[]
 var bgrid=[];
 var c=0;
-var chance,play=false;
+var chance,pchance,play=false;
 var w,h;
 var database ,ref;
-var gamecode
+var gamecode;
+var endgame,gamover=false;
 function setup() {
     params = getURLParams();
     gamecode=params.gamecode;
     chance=params.chance;
     if(chance=='X')
+    	pchance='O';
+    else pchance='X'
+    if(chance=='X')
       play=true;
     canvas=createCanvas(windowWidth,windowHeight)
     w=windowWidth/100;
     h=windowHeight/100;
+    endgame=createButton("EngGame");
+    endgame.mousePressed(()=>{
+    	senText(pchance+' wins')
+	ref.remove();
+    });
   var config = {
     apiKey: "AIzaSyBEoVHkUHSHyav2QPCbnkbM5zYjl2PDW5w",
     authDomain: "cbkm-63bc3.firebaseapp.com",
@@ -34,6 +43,18 @@ function gotData(data){
     keys=Object.keys(gridc);
       var k=keys[keys.length-1];
       var ngrid=gridc[k].grid;
+      var text=gridc[k].text;
+      print(text);
+      if(text.search("wins")!=-1){
+      	alert(text);
+      	ref.remove();
+      	window.location.href='index.html';
+      }
+      if(text.search("Draw")!=-1){
+        alert(text);
+        ref.remove();
+        window.location.href='index.html';
+      }
       nchance=gridc[k].chance;
    	  if(nchance!=chance)
    	  	play=true;
@@ -50,14 +71,19 @@ function gotData(data){
   }
 function draw() {
     background(225,225,100);
-    fill(0)
+    textSize(10*w+10*h);	
+    stroke(20)
+    fill(225,225,80);
+    text(gamecode,25*w,50*h);
+    fill(0);
     line(33*w,0,33*w,100*h);
     line(66*w,0,66*w,100*h);
     line(0,33*h,100*w,33*h);
     line(0,66*h,100*w,66*h);
-    textSize(10*w+10*h)
+    k=0;
     for(i=0;i<9;i++){
     	if(grid[i]!=null){
+        k++;
     	if(i>=0&&i<=2)
     		text(grid[i],(i*33+5)*w,25*h);
     	if(i>=3&&i<=5)
@@ -65,8 +91,9 @@ function draw() {
     	if(i>=6&&i<=8)
     		text(grid[i],((i-6)*33+5)*w,(66+25)*h);
     	}	
-
     }
+    if(k==8)
+    senText('Draw')
 }
 function setPoint(i){
 p=chance;
@@ -75,7 +102,8 @@ if(bgrid[i]==null){
 	c++;
   var data = {
   grid: bgrid,
-  chance:chance
+  chance:chance,
+  text:'play'
 };
 //console.log(data);
 ref.push(data);
@@ -111,20 +139,33 @@ function mousePressed(){
 				setPoint(0);
 }
 function checkWin(xgrid,p){
-  if(xgrid[0]==p&&xgrid[1]==p&&xgrid[2]==p)
-    print(p+" wins");
-  else if(xgrid[3]==p&&xgrid[4]==p&&xgrid[5]==p)
-    print(p+" wins");
-  else if(xgrid[6]==p&&xgrid[7]==p&&xgrid[8]==p)
-    print(p+" wins");
-  else if(xgrid[0]==p&&xgrid[3]==p&&xgrid[6]==p)
-    print(p+" wins");
-  else if(xgrid[1]==p&&xgrid[4]==p&&xgrid[7]==p)
-    print(p+" wins");
-  else if(xgrid[2]==p&&xgrid[5]==p&&xgrid[8]==p)
-    print(p+" wins");
-  else if(xgrid[0]==p&&xgrid[4]==p&&xgrid[8]==p)
-    print(p+" wins");
-  else if(xgrid[6]==p&&xgrid[4]==p&&xgrid[2]==p)
-    print(p+" wins");
+if(gamover==false){		
+  if(xgrid[0]==p&&xgrid[1]==p&&xgrid[2]==p){gamover=true;
+    senText(p+" wins");}
+  else if(xgrid[3]==p&&xgrid[4]==p&&xgrid[5]==p){gamover=true;
+    senText(p+" wins");}
+  else if(xgrid[6]==p&&xgrid[7]==p&&xgrid[8]==p){gamover=true;
+    senText(p+" wins");}
+  else if(xgrid[0]==p&&xgrid[3]==p&&xgrid[6]==p){gamover=true;
+    senText(p+" wins");}
+  else if(xgrid[1]==p&&xgrid[4]==p&&xgrid[7]==p){gamover=true;
+    senText(p+" wins");}
+  else if(xgrid[2]==p&&xgrid[5]==p&&xgrid[8]==p){gamover=true;
+    senText(p+" wins");}
+  else if(xgrid[0]==p&&xgrid[4]==p&&xgrid[8]==p){gamover=true;
+    senText(p+" wins");}
+  else if(xgrid[6]==p&&xgrid[4]==p&&xgrid[2]==p){gamover=true;
+    senText(p+" wins");}
+}
+
+}
+function senText(text){
+	//alert(text)
+ var data = {
+  grid: bgrid,
+  chance:chance,
+  text:text
+};
+//console.log(data);
+ref.push(data);
 }
